@@ -3,6 +3,10 @@ from pydantic import BaseModel
 from typing import List, Optional
 from uuid import uuid4
 from app.api.auth import get_current_user_dep
+from sqlalchemy.orm import Session
+from app.db import get_db
+from app.models.cart import Cart, CartItem as CartItemDB
+
 
 router = APIRouter(prefix="/cart", tags=["cart"])
 
@@ -48,35 +52,78 @@ def resolve_cart_key(
     return x_session_id or str(uuid4())
 
 @router.get("", response_model=CartResponse)
-def get_cart(cert_key: str = Depends(resolve_cart_key)):
-    session_id = _get_session_id(cert_key)
-    items = CARTS.get(session_id, [])
+def get_cart(
+    cart_key: str = Depends(resolve_cart_key),
+    db: Session = Depends(get_db),
+):
+    cart = db.query(Cart).filter(Cart.cart_key == cart_key).first()
+    if not cart:
+        return CartResponse(session_id=cart_key, items=[], subtotal=0.0)
+
+    items = [
+        CartItem(
+            cart_item_id=i.id,
+            product_id=i.product_id,
+            product_url=i.product_url,
+            title=i.title,
+            price=i.price,
+            currency=i.currency,
+            image_url=i.image_url,
+            quantity=i.quantity,
+        )
+        for i in cart.items
+    ]
     subtotal = sum((i.price or 0.0) * i.quantity for i in items)
-    return CartResponse(session_id=session_id, items=items, subtotal=round(subtotal, 2))
+    return CartResponse(session_id=cart_key, items=items, subtotal=round(subtotal, 2))
+
 
 @router.post("/items", response_model=CartResponse)
-def add_cart_item(payload: CartItemCreate, cert_key: str = Depends(resolve_cart_key)):
-    session_id = _get_session_id(cert_key)
-
+def add_cart_item(
+    payload: CartItemCreate,
+    cart_key: str = Depends(resolve_cart_key),
+    db: Session = Depends(get_db),
+):
     if payload.quantity < 1 or payload.quantity > 99:
         raise HTTPException(status_code=400, detail="quantity must be between 1 and 99")
 
-    item = CartItem(cart_item_id=str(uuid4()), **payload.model_dump())
-    CARTS.setdefault(session_id, []).append(item)
+    cart = db.query(Cart).filter(Cart.cart_key == cart_key).first()
+    if not cart:
+        cart = Cart(cart_key=cart_key)
+        db.add(cart)
+        db.flush()
 
-    items = CARTS[session_id]
-    subtotal = sum((i.price or 0.0) * i.quantity for i in items)
-    return CartResponse(session_id=session_id, items=items, subtotal=round(subtotal, 2))
+    db_item = CartItemDB(
+        id=str(uuid4()),
+        cart_key=cart_key,
+        product_id=payload.product_id,
+        product_url=payload.product_url,
+        title=payload.title,
+        price=payload.price,
+        currency=payload.currency,
+        image_url=payload.image_url,
+        quantity=payload.quantity,
+    )
+    db.add(db_item)
+    db.commit()
+
+    return get_cart(cart_key=cart_key, db=db)
+
 
 @router.delete("/items/{cart_item_id}", response_model=CartResponse)
-def remove_cart_item(cart_item_id: str, cert_key: str = Depends(resolve_cart_key)):
-    session_id = _get_session_id(cert_key)
-    items = CARTS.get(session_id, [])
-
-    new_items = [i for i in items if i.cart_item_id != cart_item_id]
-    if len(new_items) == len(items):
+def remove_cart_item(
+    cart_item_id: str,
+    cart_key: str = Depends(resolve_cart_key),
+    db: Session = Depends(get_db),
+):
+    item = (
+        db.query(CartItemDB)
+        .filter(CartItemDB.id == cart_item_id, CartItemDB.cart_key == cart_key)
+        .first()
+    )
+    if not item:
         raise HTTPException(status_code=404, detail="cart item not found")
 
-    CARTS[session_id] = new_items
-    subtotal = sum((i.price or 0.0) * i.quantity for i in new_items)
-    return CartResponse(session_id=session_id, items=new_items, subtotal=round(subtotal, 2))
+    db.delete(item)
+    db.commit()
+
+    return get_cart(cart_key=cart_key, db=db)

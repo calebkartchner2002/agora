@@ -1,7 +1,12 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 import os
-from app.models.user import Base
+from app.models.base import Base
+from app.models import user
+from app.models import cart 
+from app.models import order
+
+
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",

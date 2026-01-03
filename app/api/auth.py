@@ -251,24 +251,18 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
         access_expires_in_seconds=ACCESS_TOKEN_TTL_MIN * 60,
     )
 
-
 @router.post("/refresh", response_model=TokenPairResponse)
-def refresh(payload: RefreshRequest):
+def refresh(payload: RefreshRequest, db: Session = Depends(get_db)):
     # Rotate refresh token on every use
     old = payload.refresh_token
     user_id = _validate_refresh_token(old)
     new_refresh = _rotate_refresh_token(old)
 
-    # Find email by user_id (in-memory scan; fine for now)
-    email = None
-    for u in USERS_BY_EMAIL.values():
-        if u["id"] == user_id:
-            email = u["email"]
-            break
-    if not email:
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
         raise HTTPException(status_code=401, detail="User not found")
 
-    access = _make_access_token(user_id, email)
+    access = _make_access_token(user.id, user.email)
     return TokenPairResponse(
         access_token=access,
         refresh_token=new_refresh,
