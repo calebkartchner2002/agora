@@ -1,8 +1,6 @@
 from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
-from uuid import uuid4
-from datetime import datetime, timezone
 
 router = APIRouter(prefix="/orders", tags=["orders"])
 
