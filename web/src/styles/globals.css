@@ -1,17 +1,21 @@
 :root {
-  --bg: 7 10 18;
-  --panel: 255 255 255;
-  --panel-alpha: 0.04;
-  --border: 255 255 255;
-  --border-alpha: 0.10;
+  /* Base */
+  --bg: 57 79 73;              /* dark-slate-grey */
+  --panel: 215 249 241;        /* frozen-water */
+  --panel-alpha: 0.10;
+  --border: 188 216 193;       /* celadon */
+  --border-alpha: 0.35;
 
-  --text: 231 234 243;
-  --muted: 180 186 205;
+  /* Text */
+  --text: 215 249 241;         /* frozen-water */
+  --muted: 188 216 193;        /* celadon */
 
-  --primary: 99 102 241;   /* indigo */
-  --accent: 16 185 129;    /* emerald */
-  --danger: 255 80 80;
+  /* Brand */
+  --primary: 101 13 27;        /* night-bordeaux */
+  --accent: 101 116 58;        /* fern */
+  --danger: 180 60 60;
 }
+
 
 html,
 body {
