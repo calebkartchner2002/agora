@@ -8,6 +8,8 @@ services:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql+psycopg://agora:agora@postgres:5432/agora
+      - CHANNEL3_API_URL=https://api.trychannel3.com
+      - CHANNEL3_API_KEY=lN4H0KxweG69Gn11aPWvW1D2tsd7ofeJ2dKUnht1
     depends_on:
       - postgres
     volumes:
