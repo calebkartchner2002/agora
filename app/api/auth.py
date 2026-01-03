@@ -10,6 +10,10 @@ import json
 import hmac
 import hashlib
 import secrets
+from sqlalchemy.orm import Session
+from app.db import get_db
+from app.models.user import User
+
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -25,7 +29,8 @@ REFRESH_TOKEN_TTL_DAYS = int(os.getenv("REFRESH_TOKEN_TTL_DAYS", "14"))
 # In-memory stores (TEMP)
 # ---------------------------
 # users_by_email[email] = {id, email, password_hash, salt}
-USERS_BY_EMAIL: Dict[str, Dict[str, Any]] = {}
+# USERS_BY_EMAIL: Dict[str, Dict[str, Any]] = {}
+
 
 # refresh_tokens[refresh_token] = {user_id, exp_utc_iso, revoked, rotated_to}
 # This lets us revoke + rotate refresh tokens.
@@ -203,41 +208,49 @@ def get_current_user(authorization: Optional[str]) -> dict:
 # Routes
 # ---------------------------
 @router.post("/register", response_model=MeResponse)
-def register(payload: RegisterRequest):
+def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     email = payload.email.strip().lower()
-    if email in USERS_BY_EMAIL:
+
+    existing = db.query(User).filter(User.email == email).first()
+    if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
 
     salt = _new_salt()
     salt_b64 = _b64url_encode(salt)
     password_hash = _hash_password(payload.password, salt)
 
-    user_id = str(uuid4())
-    USERS_BY_EMAIL[email] = {
-        "id": user_id,
-        "email": email,
-        "salt": salt_b64,
-        "password_hash": password_hash,
-    }
-    return MeResponse(user_id=user_id, email=email)
+    user = User(
+        id=str(uuid4()),
+        email=email,
+        password_hash=password_hash,
+        salt=salt_b64,
+    )
+    db.add(user)
+    db.commit()
+
+    return MeResponse(user_id=user.id, email=user.email)
+
 
 @router.post("/login", response_model=TokenPairResponse)
-def login(payload: LoginRequest):
+def login(payload: LoginRequest, db: Session = Depends(get_db)):
     email = payload.email.strip().lower()
-    user = USERS_BY_EMAIL.get(email)
+
+    user = db.query(User).filter(User.email == email).first()
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    if not _verify_password(payload.password, user["salt"], user["password_hash"]):
+    if not _verify_password(payload.password, user.salt, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    access = _make_access_token(user["id"], user["email"])
-    refresh = _make_refresh_token(user["id"])
+    access = _make_access_token(user.id, user.email)
+    refresh = _make_refresh_token(user.id)
+
     return TokenPairResponse(
         access_token=access,
         refresh_token=refresh,
         access_expires_in_seconds=ACCESS_TOKEN_TTL_MIN * 60,
     )
+
 
 @router.post("/refresh", response_model=TokenPairResponse)
 def refresh(payload: RefreshRequest):

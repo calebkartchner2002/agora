@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 import os
+from app.models.user import Base
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
@@ -19,6 +20,9 @@ SessionLocal = sessionmaker(
     autoflush=False,
     autocommit=False,
 )
+
+# Create all tables
+Base.metadata.create_all(bind=engine)
 
 # Dependency for FastAPI routes later
 def get_db():
