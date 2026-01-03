@@ -2,18 +2,18 @@ services:
   api:
     image: ecommerce-api:dev
     build:
-      context: .
+      context: ./api
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql+psycopg://agora:agora@postgres:5432/agora
       - CHANNEL3_API_URL=https://api.trychannel3.com
-      - CHANNEL3_API_KEY=lN4H0KxweG69Gn11aPWvW1D2tsd7ofeJ2dKUnht1
+      - CHANNEL3_API_KEY=${CHANNEL3_API_KEY}
     depends_on:
       - postgres
     volumes:
-      - .:/app
+      - ./api:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   postgres:

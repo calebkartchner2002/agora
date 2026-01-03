@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.products import router as products_router
 from app.api.cart import router as cart_router
@@ -25,3 +26,11 @@ app.include_router(system_router)
 app.include_router(checkout_router)
 app.include_router(orders_router)
 app.include_router(auth_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
