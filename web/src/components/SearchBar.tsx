@@ -42,10 +42,6 @@ export function SearchBar({
       >
         {/* Search input */}
         <div style={{ flex: 1.8, minWidth: 360 }}>
-          <div style={{ fontSize: 12, opacity: 0.8, marginBottom: 6 }}>
-            Search the Agora
-          </div>
-
           <div style={{ position: "relative" }}>
             <Input
               value={q}
@@ -102,9 +98,6 @@ export function SearchBar({
 
         {/* Limit */}
         <div style={{ width: 130 }}>
-          <div style={{ fontSize: 12, opacity: 0.8, marginBottom: 6 }}>
-            Limit
-          </div>
           <Input
             type="number"
             min={1}

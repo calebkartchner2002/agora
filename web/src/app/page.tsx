@@ -115,47 +115,96 @@ export default function HomePage() {
   }
 
   return (
-    <>
-      <Header sessionId={sessionId} cartCount={cartCount} />
-
-      <SearchBar
-        q={q}
-        setQ={setQ}
-        limit={limit}
-        setLimit={setLimit}
-        loading={loading}
-        onSearch={runSearch}
-        onClear={clear}
-        error={error}
-      />
-
-      {!hasSearched ? (
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
+      {/* HERO / TOP SEARCH AREA */}
       <div
         style={{
-          marginTop: 12,
-          padding: "20px 22px",
-          borderRadius: 18,
-          background: "rgba(var(--panel), 0.06)",
-          color: "rgb(var(--muted))",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          transition: "all 300ms ease",
+          paddingTop: hasSearched ? 18 : "18vh",
+          paddingBottom: hasSearched ? 12 : 18,
         }}
       >
-        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>
-          Ready when you are.
-        </div>
-        <div style={{ fontSize: 13, opacity: 0.8 }}>
-          Enter a query above and use the search icon to explore products.
+        <div
+          style={{
+            width: "100%",
+            maxWidth: hasSearched ? 920 : 980,
+            padding: hasSearched ? "12px 18px" : "24px 24px",
+            transform: hasSearched ? "scale(1)" : "scale(1.12)",
+            transformOrigin: "top center",
+            transition: "all 300ms ease",
+          }}
+        >
+          <SearchBar
+            q={q}
+            setQ={setQ}
+            limit={limit}
+            setLimit={setLimit}
+            loading={loading}
+            onSearch={runSearch}
+            onClear={clear}
+            error={error}
+          />
+
+          {/* Bigger helper text before searching, smaller after */}
+          <div
+            style={{
+              marginTop: hasSearched ? 10 : 16,
+              padding: hasSearched ? "10px 12px" : "18px 18px",
+              borderRadius: 18,
+              background: "rgba(var(--panel), 0.06)",
+              color: "rgb(var(--muted))",
+              transition: "all 300ms ease",
+            }}
+          >
+            <div
+              style={{
+                fontSize: hasSearched ? 14 : 18,
+                fontWeight: 850,
+                marginBottom: hasSearched ? 4 : 8,
+                transition: "all 300ms ease",
+              }}
+            >
+              Ready when you are.
+            </div>
+            <div
+              style={{
+                fontSize: hasSearched ? 13 : 15,
+                opacity: 0.85,
+                lineHeight: 1.45,
+                transition: "all 300ms ease",
+              }}
+            >
+              Enter a query above and use the search icon to explore products.
+            </div>
+          </div>
         </div>
       </div>
-      ) : results.length === 0 && !loading ? (
-        <Card style={{ padding: 18, opacity: 0.92 }}>
-          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>No results.</div>
-          <div style={{ fontSize: 13, opacity: 0.75 }}>
-            Try a broader query or increase the limit.
-          </div>
-        </Card>
-      ) : (
-        <ProductGrid products={results} onAdd={addToCart} addDisabled={!sessionId} />
-      )}
-    </>
+
+      {/* RESULTS AREA */}
+      <div style={{ width: "100%", maxWidth: 1200, padding: "0 24px 32px" }}>
+        {hasSearched && results.length === 0 && !loading ? (
+          <Card style={{ padding: 18, opacity: 0.92 }}>
+            <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>
+              No results.
+            </div>
+            <div style={{ fontSize: 13, opacity: 0.75 }}>
+              Try a broader query or increase the limit.
+            </div>
+          </Card>
+        ) : hasSearched ? (
+          <ProductGrid products={results} onAdd={addToCart} addDisabled={!sessionId} />
+        ) : null}
+      </div>
+    </div>
   );
 }
