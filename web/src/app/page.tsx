@@ -14,6 +14,14 @@ type SearchResponse = {
   results: Product[];
 };
 
+type CartResponse = {
+  id: string;
+  user_id: string | null;
+  guest_session_id: string | null;
+  items: Array<{ quantity: number }>;
+};
+
+
 export default function HomePage() {
   const [q, setQ] = useState("");
   const [limit, setLimit] = useState(12);
@@ -22,9 +30,16 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
 
+
+  // useEffect(() => {
+  //   setSessionId(getGuestSessionId());
+  // }, []);
   useEffect(() => {
-    setSessionId(getGuestSessionId());
+    const sid = getGuestSessionId();
+    setSessionId(sid);
+    refreshCartCount(sid);
   }, []);
 
   async function runSearch() {
@@ -71,11 +86,26 @@ export default function HomePage() {
         { headers: { "x-session-id": sessionId } }
       );
       // We’ll replace alert with a Toast component later
+      await refreshCartCount(sessionId);
       alert("Added to cart");
     } catch (e: any) {
       setError(e?.message ?? "Add to cart failed");
     }
   }
+
+  async function refreshCartCount(sid: string) {
+    try {
+      const cart = await apiGet<CartResponse>("/cart", {
+        headers: { "x-session-id": sid },
+      });
+      const count = (cart.items ?? []).reduce((sum, it) => sum + (it.quantity ?? 0), 0);
+      setCartCount(count);
+    } catch {
+      // If cart isn't created yet or endpoint errors, just show 0
+      setCartCount(0);
+    }
+  }
+
 
   function clear() {
     setQ("");
@@ -86,7 +116,7 @@ export default function HomePage() {
 
   return (
     <>
-      <Header sessionId={sessionId} />
+      <Header sessionId={sessionId} cartCount={cartCount} />
 
       <SearchBar
         q={q}

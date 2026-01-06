@@ -60,3 +60,26 @@ export async function apiPost<T>(
   }
   return res.json() as Promise<T>;
 }
+
+export async function apiDelete<T>(
+  path: string,
+  opts?: { token?: string; headers?: Record<string, string> }
+): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "DELETE",
+    headers: {
+      accept: "application/json",
+      ...(opts?.token ? { Authorization: `Bearer ${opts.token}` } : {}),
+      ...(opts?.headers || {}),
+    },
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`DELETE ${path} failed: ${res.status} ${text}`);
+  }
+
+  // Some DELETE endpoints return empty responses; handle both safely
+  const text = await res.text();
+  return (text ? (JSON.parse(text) as T) : ({} as T));
+}
