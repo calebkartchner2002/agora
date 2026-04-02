@@ -15,30 +15,30 @@ export function Button({
   ...props
 }: Props) {
   const base: React.CSSProperties = {
-    borderRadius: 14,
-    border: "1px solid rgba(var(--border), var(--border-alpha))",
-    fontWeight: 900,
+    borderRadius: 10,
+    fontWeight: 600,
     cursor: disabled ? "not-allowed" : "pointer",
-    transition: "transform 120ms ease, box-shadow 160ms ease, background 160ms ease",
+    transition: "transform 120ms ease, box-shadow 160ms ease, background 160ms ease, opacity 160ms ease",
     userSelect: "none",
+    letterSpacing: "0.01em",
   };
 
   const sizes: Record<string, React.CSSProperties> = {
-    sm: { padding: "10px 12px", fontSize: 13 },
-    md: { padding: "12px 14px", fontSize: 14 },
+    sm: { padding: "8px 14px", fontSize: 13 },
+    md: { padding: "11px 20px", fontSize: 14 },
   };
 
   const variants: Record<string, React.CSSProperties> = {
     primary: {
-      background:
-        "linear-gradient(135deg, rgb(var(--primary)) 0%, rgb(var(--accent)) 100%)",
-      color: "#0B1222", // dark navy text for contrast
-      boxShadow: "0 18px 60px rgba(56,122,255,0.35)",
+      background: "rgb(var(--primary))",
+      color: "#ffffff",
+      border: "1px solid rgba(var(--primary-light), 0.4)",
+      boxShadow: "0 0 0 0 rgba(var(--primary), 0)",
     },
     ghost: {
-      background: "rgba(var(--panel), var(--panel-alpha))",
+      background: "rgba(var(--border), 0.18)",
       color: "rgb(var(--text))",
-      border: "1px solid rgba(var(--border), 0.12)",
+      border: "1px solid rgba(var(--border), 0.55)",
     },
   };
 
@@ -50,20 +50,37 @@ export function Button({
         ...base,
         ...sizes[size],
         ...variants[variant],
-        opacity: disabled ? 0.65 : 1,
+        opacity: disabled ? 0.5 : 1,
         ...style,
       }}
+      onMouseEnter={(e) => {
+        if (!disabled) {
+          if (variant === "primary") {
+            e.currentTarget.style.background = "rgb(var(--primary-light))";
+            e.currentTarget.style.boxShadow = "0 0 20px rgba(var(--primary), 0.45)";
+          } else {
+            e.currentTarget.style.background = "rgba(var(--border), 0.3)";
+          }
+        }
+        props.onMouseEnter?.(e);
+      }}
+      onMouseLeave={(e) => {
+        if (variant === "primary") {
+          e.currentTarget.style.background = "rgb(var(--primary))";
+          e.currentTarget.style.boxShadow = "0 0 0 0 rgba(var(--primary), 0)";
+        } else {
+          e.currentTarget.style.background = "rgba(var(--border), 0.18)";
+        }
+        e.currentTarget.style.transform = "scale(1)";
+        props.onMouseLeave?.(e);
+      }}
       onMouseDown={(e) => {
-        if (!disabled) (e.currentTarget.style.transform = "scale(0.98)");
+        if (!disabled) e.currentTarget.style.transform = "scale(0.97)";
         props.onMouseDown?.(e);
       }}
       onMouseUp={(e) => {
         e.currentTarget.style.transform = "scale(1)";
         props.onMouseUp?.(e);
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "scale(1)";
-        props.onMouseLeave?.(e);
       }}
     />
   );

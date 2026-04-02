@@ -1,6 +1,5 @@
 "use client";
 
-import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 
@@ -26,78 +25,68 @@ export function SearchBar({
   error,
 }: Props) {
   return (
-    <Card
-      style={{
-        marginBottom: 22,
-        background: "rgba(var(--panel), 0.08)",
-      }}
-    >
+    <div>
       <div
         style={{
           display: "flex",
-          gap: 14,
-          flexWrap: "wrap",
-          alignItems: "flex-end",
+          gap: 10,
+          alignItems: "stretch",
         }}
       >
         {/* Search input */}
-        <div style={{ flex: 1.8, minWidth: 360 }}>
-          <div style={{ position: "relative" }}>
-            <Input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") onSearch();
-              }}
-              placeholder='Search products (e.g. “running shoes”)'
-              style={{
-                paddingRight: 64, // room for icon button
-              }}
-            />
+        <div style={{ flex: 1, position: "relative" }}>
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") onSearch();
+            }}
+            placeholder='Search products (e.g. "running shoes")'
+            style={{ paddingRight: 52 }}
+          />
 
-            {/* Search icon button */}
-            <button
-              onClick={onSearch}
-              disabled={loading}
-              aria-label="Search"
-              style={{
-                position: "absolute",
-                right: 10,
-                top: "50%",
-                transform: "translateY(-50%)",
-                width: 42,
-                height: 42,
-                borderRadius: 14,
-                border: "1px solid rgba(var(--border), 0.55)",
-                background:
-                  "linear-gradient(135deg, rgb(var(--primary)), rgb(var(--accent)))",
-                color: "rgb(var(--panel))",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: loading ? "not-allowed" : "pointer",
-                boxShadow: "0 10px 24px rgba(0,0,0,0.35)",
-              }}
+          {/* Search icon button */}
+          <button
+            onClick={onSearch}
+            disabled={loading}
+            aria-label="Search"
+            style={{
+              position: "absolute",
+              right: 8,
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: 36,
+              height: 36,
+              borderRadius: 8,
+              border: "none",
+              background: "rgb(var(--primary))",
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: loading ? "not-allowed" : "pointer",
+              opacity: loading ? 0.6 : 1,
+              transition: "background 150ms ease",
+            }}
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              <svg
-                width="17"
-                height="17"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-            </button>
-          </div>
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
         </div>
 
         {/* Limit */}
-        <div style={{ width: 130 }}>
+        <div style={{ width: 110, flexShrink: 0 }}>
           <Input
             type="number"
             min={1}
@@ -108,28 +97,26 @@ export function SearchBar({
         </div>
 
         {/* Clear */}
-        <div style={{ paddingBottom: 2 }}>
-          <Button variant="ghost" onClick={onClear}>
-            Clear
-          </Button>
-        </div>
+        <Button variant="ghost" onClick={onClear} style={{ flexShrink: 0 }}>
+          Clear
+        </Button>
       </div>
 
       {error && (
         <div
           style={{
-            marginTop: 14,
-            padding: "12px 14px",
-            borderRadius: 14,
-            border: "1px solid rgba(var(--danger), 0.35)",
-            background: "rgba(var(--danger), 0.12)",
-            color: "rgb(255 230 230)",
+            marginTop: 12,
+            padding: "12px 16px",
+            borderRadius: 10,
+            border: "1px solid rgba(var(--danger), 0.4)",
+            background: "rgba(var(--danger), 0.08)",
+            color: "rgb(255, 200, 200)",
             fontSize: 13,
           }}
         >
-          <b>Issue:</b> {error}
+          {error}
         </div>
       )}
-    </Card>
+    </div>
   );
 }

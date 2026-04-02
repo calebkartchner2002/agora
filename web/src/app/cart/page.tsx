@@ -52,7 +52,6 @@ export default function CartPage() {
     return { count, subtotal, currency };
   }, [cart]);
 
-  // IMPORTANT: only set sessionId on client AFTER mount (prevents hydration mismatch)
   useEffect(() => {
     setSessionId(getGuestSessionId());
   }, []);
@@ -73,7 +72,6 @@ export default function CartPage() {
     }
   }
 
-  // Load cart once session is ready
   useEffect(() => {
     if (!sessionId) return;
     loadCart(sessionId);
@@ -102,16 +100,19 @@ export default function CartPage() {
       <div
         style={{
           display: "flex",
-          alignItems: "baseline",
+          alignItems: "center",
           justifyContent: "space-between",
           gap: 12,
+          marginBottom: 28,
         }}
       >
         <div>
-          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 900 }}>Cart</h2>
-          <div style={{ marginTop: 6, fontSize: 13, opacity: 0.8 }}>
-            Guest session:{" "}
-            <code suppressHydrationWarning>
+          <h2 style={{ margin: "0 0 6px", fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em" }}>
+            Cart
+          </h2>
+          <div style={{ fontSize: 13, color: "rgb(var(--muted))" }}>
+            Session:{" "}
+            <code suppressHydrationWarning style={{ fontFamily: "var(--font-geist-mono)", fontSize: 12 }}>
               {sessionId ?? "loading..."}
             </code>
           </div>
@@ -129,41 +130,34 @@ export default function CartPage() {
       {error && (
         <div
           style={{
-            marginTop: 14,
-            padding: "12px 14px",
-            borderRadius: 14,
-            border: "1px solid rgba(var(--danger), 0.35)",
-            background: "rgba(var(--danger), 0.12)",
-            color: "rgb(255 230 230)",
+            marginBottom: 20,
+            padding: "14px 16px",
+            borderRadius: 10,
+            border: "1px solid rgba(var(--danger), 0.4)",
+            background: "rgba(var(--danger), 0.08)",
+            color: "rgb(255, 200, 200)",
             fontSize: 13,
           }}
         >
-          <b>Issue:</b> {error}
+          {error}
         </div>
       )}
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "2fr 1fr",
-          gap: 14,
-          marginTop: 16,
-        }}
-      >
+      <div className="cart-grid">
         {/* Items */}
-        <Card style={{ padding: 16 }}>
-          <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 10 }}>
+        <Card style={{ padding: 24 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "rgb(var(--muted))", marginBottom: 16 }}>
             Items
           </div>
 
           {!sessionId || loading ? (
-            <div style={{ opacity: 0.8 }}>Loading…</div>
+            <div style={{ color: "rgb(var(--muted))", padding: "16px 0" }}>Loading…</div>
           ) : !cart || (cart.items?.length ?? 0) === 0 ? (
-            <div style={{ opacity: 0.8 }}>
-              Your cart is empty. Go back and add something.
+            <div style={{ color: "rgb(var(--muted))", padding: "16px 0" }}>
+              Your cart is empty. Go search for something.
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {cart.items.map((it) => {
                 const cartItemId = getCartItemId(it);
 
@@ -172,21 +166,21 @@ export default function CartPage() {
                     key={cartItemId ?? it.product_id}
                     style={{
                       display: "flex",
-                      gap: 12,
-                      padding: 12,
-                      borderRadius: 16,
-                      border: "1px solid rgba(var(--border), 0.22)",
-                      background: "rgba(var(--panel), 0.06)",
+                      gap: 16,
+                      padding: 16,
+                      borderRadius: 12,
+                      border: "1px solid rgba(var(--border), 0.5)",
+                      background: "rgba(var(--border), 0.06)",
                     }}
                   >
                     {/* image */}
                     <div
                       style={{
-                        width: 92,
-                        height: 92,
-                        borderRadius: 14,
-                        border: "1px solid rgba(var(--border), 0.18)",
-                        background: "rgba(0,0,0,0.18)",
+                        width: 96,
+                        height: 96,
+                        borderRadius: 10,
+                        border: "1px solid rgba(var(--border), 0.4)",
+                        background: "rgba(0,0,0,0.3)",
                         display: "grid",
                         placeItems: "center",
                         overflow: "hidden",
@@ -198,24 +192,20 @@ export default function CartPage() {
                         <img
                           src={it.image_url}
                           alt={it.title}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "contain",
-                          }}
+                          style={{ width: "100%", height: "100%", objectFit: "contain" }}
                         />
                       ) : (
-                        <div style={{ opacity: 0.6, fontSize: 12 }}>No image</div>
+                        <div style={{ opacity: 0.4, fontSize: 12, color: "rgb(var(--muted))" }}>No image</div>
                       )}
                     </div>
 
                     {/* details */}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 900, lineHeight: 1.25 }}>
+                      <div style={{ fontWeight: 600, lineHeight: 1.35, fontSize: 15 }}>
                         {it.title}
                       </div>
-                      <div style={{ marginTop: 6, fontSize: 13, opacity: 0.8 }}>
-                        {fmtMoney(it.price, it.currency)} • Qty {it.quantity}
+                      <div style={{ marginTop: 6, fontSize: 13, color: "rgb(var(--muted))" }}>
+                        {fmtMoney(it.price, it.currency)} &bull; Qty {it.quantity}
                       </div>
                       <a
                         href={it.product_url}
@@ -225,12 +215,11 @@ export default function CartPage() {
                           display: "inline-block",
                           marginTop: 8,
                           fontSize: 12,
-                          opacity: 0.8,
+                          color: "rgb(129, 140, 248)",
                         }}
                       >
                         View product →
                       </a>
-
                     </div>
 
                     {/* actions */}
@@ -239,10 +228,11 @@ export default function CartPage() {
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "flex-end",
-                        gap: 10,
+                        gap: 12,
+                        flexShrink: 0,
                       }}
                     >
-                      <div style={{ fontWeight: 900 }}>
+                      <div style={{ fontWeight: 700, fontSize: 15 }}>
                         {it.price != null
                           ? fmtMoney(it.price * it.quantity, it.currency)
                           : "—"}
@@ -254,7 +244,7 @@ export default function CartPage() {
                         onClick={() => {
                           if (!cartItemId) {
                             setError(
-                              "This cart item has no cart_item_id in the API response. Confirm the field name in GET /cart."
+                              "This cart item has no cart_item_id in the API response."
                             );
                             return;
                           }
@@ -273,41 +263,51 @@ export default function CartPage() {
         </Card>
 
         {/* Summary */}
-        <Card style={{ padding: 16, height: "fit-content" }}>
-          <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 10 }}>
-            Summary
+        <Card style={{ padding: 24, height: "fit-content", position: "sticky", top: 80 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "rgb(var(--muted))", marginBottom: 20 }}>
+            Order Summary
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-            <div style={{ opacity: 0.85 }}>Items</div>
-            <div style={{ fontWeight: 900 }}>{totals.count}</div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+            <div style={{ color: "rgb(var(--muted))", fontSize: 14 }}>Items</div>
+            <div style={{ fontWeight: 600 }}>{totals.count}</div>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
-            <div style={{ opacity: 0.85 }}>Subtotal</div>
-            <div style={{ fontWeight: 900 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              paddingTop: 14,
+              borderTop: "1px solid rgba(var(--border), 0.4)",
+              marginBottom: 20,
+            }}
+          >
+            <div style={{ color: "rgb(var(--muted))", fontSize: 14 }}>Subtotal</div>
+            <div style={{ fontWeight: 700, fontSize: 16 }}>
               {`${totals.subtotal.toFixed(2)} ${totals.currency}`}
             </div>
           </div>
 
           <Button
-            onClick={() => window.location.href = "/checkout"}
+            onClick={() => (window.location.href = "/checkout")}
             disabled={!cart || (cart.items?.length ?? 0) === 0}
             style={{ width: "100%" }}
           >
-            Checkout
+            Proceed to Checkout
           </Button>
-
-          <div style={{ marginTop: 10, fontSize: 12, opacity: 0.75 }}>
-            Checkout will come next: price re-check + Rye execution.
-          </div>
         </Card>
       </div>
 
       <style jsx>{`
-        @media (max-width: 980px) {
-          div[style*="grid-template-columns: 2fr 1fr"] {
-            grid-template-columns: 1fr !important;
+        .cart-grid {
+          display: grid;
+          grid-template-columns: 1fr 320px;
+          gap: 20px;
+          align-items: start;
+        }
+        @media (max-width: 900px) {
+          .cart-grid {
+            grid-template-columns: 1fr;
           }
         }
       `}</style>

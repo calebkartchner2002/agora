@@ -23,21 +23,20 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-return (
-  <html lang="en">
-    <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-      <div
-        style={{
-          maxWidth: 1100,
-          margin: "0 auto",
-          padding: "22px 18px 40px",
-        }}
-      >
+  return (
+    <html lang="en">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <NavBar />
-        {children}
-      </div>
-    </body>
-  </html>
-);
-
+        <div
+          style={{
+            maxWidth: 1280,
+            margin: "0 auto",
+            padding: "0 24px 64px",
+          }}
+        >
+          {children}
+        </div>
+      </body>
+    </html>
+  );
 }

@@ -25,7 +25,6 @@ type CartResponse = {
 };
 
 type CheckoutPreviewResponse = {
-  // These fields may vary; we keep it flexible.
   subtotal?: number;
   total?: number;
   currency?: string;
@@ -39,7 +38,6 @@ type CheckoutPreviewResponse = {
 };
 
 type CheckoutSubmitResponse = {
-  // Often includes order id + status
   order_id?: string;
   status?: string;
   message?: string;
@@ -108,7 +106,6 @@ export default function CheckoutPage() {
     setSubmitResult(null);
 
     try {
-      // Backend should derive cart from x-session-id
       const data = await apiPost<CheckoutPreviewResponse>(
         "/checkout/preview",
         {},
@@ -129,8 +126,6 @@ export default function CheckoutPage() {
     setError(null);
 
     try {
-      // Many backends require preview first; you can keep the guard
-      // but we won't hard-block—just recommend.
       const data = await apiPost<CheckoutSubmitResponse>(
         "/checkout/submit",
         {},
@@ -149,11 +144,21 @@ export default function CheckoutPage() {
 
   return (
     <main>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+          marginBottom: 28,
+        }}
+      >
         <div>
-          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 900 }}>Checkout</h2>
-          <div style={{ marginTop: 6, fontSize: 13, opacity: 0.8 }}>
-            Preview totals, then submit your order.
+          <h2 style={{ margin: "0 0 6px", fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em" }}>
+            Checkout
+          </h2>
+          <div style={{ fontSize: 13, color: "rgb(var(--muted))" }}>
+            Review your order and confirm.
           </div>
         </div>
 
@@ -169,54 +174,56 @@ export default function CheckoutPage() {
       {error && (
         <div
           style={{
-            marginTop: 14,
-            padding: "12px 14px",
-            borderRadius: 14,
-            border: "1px solid rgba(var(--danger), 0.35)",
-            background: "rgba(var(--danger), 0.12)",
-            color: "rgb(255 230 230)",
+            marginBottom: 20,
+            padding: "14px 16px",
+            borderRadius: 10,
+            border: "1px solid rgba(var(--danger), 0.4)",
+            background: "rgba(var(--danger), 0.08)",
+            color: "rgb(255, 200, 200)",
             fontSize: 13,
           }}
         >
-          <b>Issue:</b> {error}
+          {error}
         </div>
       )}
 
       {submitResult ? (
-        <Card style={{ marginTop: 16, padding: 18 }}>
-          <div style={{ fontSize: 14, fontWeight: 900, marginBottom: 6 }}>Submitted ✅</div>
-          <div style={{ fontSize: 13, opacity: 0.85 }}>
+        <Card style={{ padding: 32 }}>
+          <div style={{ fontSize: 20, marginBottom: 8 }}>✅</div>
+          <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Order submitted!</div>
+          <div style={{ fontSize: 14, color: "rgb(var(--muted))", display: "flex", flexDirection: "column", gap: 8 }}>
             {submitResult.order_id && (
               <div>
-                <b>Order ID:</b> <code>{submitResult.order_id}</code>
+                <span style={{ color: "rgb(var(--text))", fontWeight: 500 }}>Order ID:</span>{" "}
+                <code style={{ fontFamily: "var(--font-geist-mono)" }}>{submitResult.order_id}</code>
               </div>
             )}
             {submitResult.status && (
-              <div style={{ marginTop: 6 }}>
-                <b>Status:</b> {submitResult.status}
+              <div>
+                <span style={{ color: "rgb(var(--text))", fontWeight: 500 }}>Status:</span>{" "}
+                {submitResult.status}
               </div>
             )}
             {submitResult.message && (
-              <div style={{ marginTop: 6 }}>
-                <b>Message:</b> {submitResult.message}
+              <div>
+                <span style={{ color: "rgb(var(--text))", fontWeight: 500 }}>Message:</span>{" "}
+                {submitResult.message}
               </div>
             )}
           </div>
-
-          <div style={{ marginTop: 14, fontSize: 12, opacity: 0.75 }}>
-            Next step: show Order History using <code>GET /orders</code>.
-          </div>
         </Card>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 14, marginTop: 16 }}>
+        <div className="checkout-grid">
           {/* Review */}
-          <Card style={{ padding: 16 }}>
-            <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 10 }}>Review</div>
+          <Card style={{ padding: 24 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "rgb(var(--muted))", marginBottom: 16 }}>
+              Order Review
+            </div>
 
             {loadingCart ? (
-              <div style={{ opacity: 0.8 }}>Loading…</div>
+              <div style={{ color: "rgb(var(--muted))", padding: "16px 0" }}>Loading…</div>
             ) : !hasItems ? (
-              <div style={{ opacity: 0.8 }}>Your cart is empty.</div>
+              <div style={{ color: "rgb(var(--muted))", padding: "16px 0" }}>Your cart is empty.</div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {cart!.items.map((it) => (
@@ -225,21 +232,23 @@ export default function CheckoutPage() {
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      gap: 12,
-                      padding: 12,
-                      borderRadius: 16,
-                      border: "1px solid rgba(var(--border), 0.22)",
-                      background: "rgba(var(--panel), 0.06)",
+                      gap: 16,
+                      padding: 14,
+                      borderRadius: 10,
+                      border: "1px solid rgba(var(--border), 0.5)",
+                      background: "rgba(var(--border), 0.06)",
                     }}
                   >
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontWeight: 900, lineHeight: 1.25 }}>{it.title}</div>
-                      <div style={{ marginTop: 6, fontSize: 13, opacity: 0.8 }}>
-                        {it.quantity} × {it.price ?? "—"} {it.currency ?? "USD"}
+                      <div style={{ fontWeight: 600, lineHeight: 1.35 }}>{it.title}</div>
+                      <div style={{ marginTop: 6, fontSize: 13, color: "rgb(var(--muted))" }}>
+                        {it.quantity} &times; {it.price ?? "—"} {it.currency ?? "USD"}
                       </div>
                     </div>
-                    <div style={{ fontWeight: 900, whiteSpace: "nowrap" }}>
-                      {it.price != null ? (it.price * it.quantity).toFixed(2) : "—"} {it.currency ?? "USD"}
+                    <div style={{ fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0 }}>
+                      {it.price != null
+                        ? `${(it.price * it.quantity).toFixed(2)} ${it.currency ?? "USD"}`
+                        : "—"}
                     </div>
                   </div>
                 ))}
@@ -248,57 +257,81 @@ export default function CheckoutPage() {
           </Card>
 
           {/* Summary + Actions */}
-          <Card style={{ padding: 16, height: "fit-content" }}>
-            <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 10 }}>Summary</div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-              <div style={{ opacity: 0.85 }}>Items</div>
-              <div style={{ fontWeight: 900 }}>{totals.count}</div>
+          <Card style={{ padding: 24, height: "fit-content", position: "sticky", top: 80 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "rgb(var(--muted))", marginBottom: 20 }}>
+              Summary
             </div>
 
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
-              <div style={{ opacity: 0.85 }}>Cart subtotal</div>
-              <div style={{ fontWeight: 900 }}>{money(totals.subtotal, totals.currency)}</div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+              <div style={{ color: "rgb(var(--muted))", fontSize: 14 }}>Items</div>
+              <div style={{ fontWeight: 600 }}>{totals.count}</div>
             </div>
 
-            <Button
-              onClick={runPreview}
-              disabled={!hasItems || loadingPreview || submitting || !sessionId}
-              style={{ width: "100%", marginBottom: 10 }}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                paddingTop: 14,
+                borderTop: "1px solid rgba(var(--border), 0.4)",
+                marginBottom: 20,
+              }}
             >
-              {loadingPreview ? "Previewing…" : "Preview checkout"}
-            </Button>
+              <div style={{ color: "rgb(var(--muted))", fontSize: 14 }}>Subtotal</div>
+              <div style={{ fontWeight: 700, fontSize: 16 }}>
+                {money(totals.subtotal, totals.currency)}
+              </div>
+            </div>
 
-            <Button
-              onClick={submitCheckout}
-              disabled={!hasItems || submitting || !sessionId}
-              style={{ width: "100%" }}
-            >
-              {submitting ? "Submitting…" : "Submit order"}
-            </Button>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <Button
+                onClick={runPreview}
+                variant="ghost"
+                disabled={!hasItems || loadingPreview || submitting || !sessionId}
+                style={{ width: "100%" }}
+              >
+                {loadingPreview ? "Previewing…" : "Preview checkout"}
+              </Button>
+
+              <Button
+                onClick={submitCheckout}
+                disabled={!hasItems || submitting || !sessionId}
+                style={{ width: "100%" }}
+              >
+                {submitting ? "Submitting…" : "Submit order"}
+              </Button>
+            </div>
 
             {preview && (
-              <div style={{ marginTop: 14, fontSize: 13, opacity: 0.9 }}>
-                <div style={{ fontWeight: 900, marginBottom: 8 }}>Preview</div>
+              <div
+                style={{
+                  marginTop: 20,
+                  paddingTop: 16,
+                  borderTop: "1px solid rgba(var(--border), 0.4)",
+                  fontSize: 13,
+                }}
+              >
+                <div style={{ fontWeight: 600, marginBottom: 12, color: "rgb(var(--muted))", textTransform: "uppercase", letterSpacing: "0.05em", fontSize: 11 }}>
+                  Preview
+                </div>
 
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                  <div style={{ opacity: 0.85 }}>Subtotal</div>
-                  <div style={{ fontWeight: 900 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                  <div style={{ color: "rgb(var(--muted))" }}>Subtotal</div>
+                  <div style={{ fontWeight: 600 }}>
                     {money(preview.subtotal ?? totals.subtotal, preview.currency ?? totals.currency)}
                   </div>
                 </div>
 
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                  <div style={{ opacity: 0.85 }}>Total</div>
-                  <div style={{ fontWeight: 900 }}>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <div style={{ color: "rgb(var(--muted))" }}>Total</div>
+                  <div style={{ fontWeight: 700 }}>
                     {money(preview.total ?? totals.subtotal, preview.currency ?? totals.currency)}
                   </div>
                 </div>
 
                 {preview.warnings?.length ? (
-                  <div style={{ marginTop: 10, fontSize: 12, opacity: 0.85 }}>
-                    <div style={{ fontWeight: 900, marginBottom: 6 }}>Warnings</div>
-                    <ul style={{ margin: 0, paddingLeft: 18 }}>
+                  <div style={{ marginTop: 14, padding: "10px 12px", borderRadius: 8, background: "rgba(var(--danger), 0.08)", border: "1px solid rgba(var(--danger), 0.3)" }}>
+                    <div style={{ fontWeight: 600, marginBottom: 6, fontSize: 12, color: "rgb(255, 200, 200)" }}>Warnings</div>
+                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: "rgb(255, 180, 180)" }}>
                       {preview.warnings.map((w, idx) => (
                         <li key={idx}>{w}</li>
                       ))}
@@ -307,18 +340,20 @@ export default function CheckoutPage() {
                 ) : null}
               </div>
             )}
-
-            <div style={{ marginTop: 12, fontSize: 12, opacity: 0.75 }}>
-              Preview confirms price/availability; Submit places the order.
-            </div>
           </Card>
         </div>
       )}
 
       <style jsx>{`
-        @media (max-width: 980px) {
-          div[style*="grid-template-columns: 2fr 1fr"] {
-            grid-template-columns: 1fr !important;
+        .checkout-grid {
+          display: grid;
+          grid-template-columns: 1fr 320px;
+          gap: 20px;
+          align-items: start;
+        }
+        @media (max-width: 900px) {
+          .checkout-grid {
+            grid-template-columns: 1fr;
           }
         }
       `}</style>

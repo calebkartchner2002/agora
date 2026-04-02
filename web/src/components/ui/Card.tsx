@@ -10,11 +10,10 @@ export function Card({ padded = true, style, ...props }: Props) {
       {...props}
       style={{
         border: "1px solid rgba(var(--border), var(--border-alpha))",
-        background: "rgba(var(--panel), var(--panel-alpha))",
-        borderRadius: 18,
-        backdropFilter: "blur(10px)",
-        boxShadow: "0 18px 60px rgba(0,0,0,0.35)",
-        padding: padded ? 14 : 0,
+        background: "rgb(var(--panel))",
+        borderRadius: 16,
+        boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
+        padding: padded ? 20 : 0,
         ...style,
       }}
     />
