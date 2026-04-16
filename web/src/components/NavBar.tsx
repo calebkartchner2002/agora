@@ -52,6 +52,7 @@ export function NavBar({ cartCount = 0 }: NavBarProps) {
         borderBottom: "1px solid rgba(var(--border), 0.4)",
         background: "rgba(var(--bg), 0.92)",
         backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
         marginBottom: 32,
       }}
     >
