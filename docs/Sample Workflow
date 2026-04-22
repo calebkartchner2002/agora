@@ -1,0 +1,53 @@
+Individual firm major supplier workflow 
+
+1. Determine if company is publicly traded, and find official name
+    1. “Google _ parent company”
+        1. Determine only for major shareholders’
+            1. Major defined as >25%
+            2. Cross-check against open source
+    2. “Is _ publicly traded”
+    3. “_ ticker symbol”
+2. If so:
+    1. Check SEC EDGAR reports for 10-K (annual) and 10-Q forms (quarterly)
+        1. Command “f” suppliers
+        2. Command “f” manufacturing/manufacture
+        3. Command “f” factories/factory
+    2. Run import yeti
+        1. Sort by “all time”, look for top suppliers by TEU
+        2. Check the names of suppliers, their listed countries may be bullshit
+    3. Run IQS directory
+    4. Run ThomasNet
+3. If not:
+    1. Google “where is _ headquartered?”
+        1. Run first for parent company, then target company
+            1. Repeat for various layers
+    2. Google “where does _ manufacture” 
+        1. Run first for parent company, then target company
+    3. Google “_ investors’
+        1. Run first for parent company, then target company
+    4. Google “_ owners” 
+        1. Run first for parent company, then target company
+        2. Dig into any listed CEOs, owners, etc of note
+    5. Run import yeti 
+        1. Sort by “all time”, look for top suppliers by TEU
+        2. Check the names of suppliers, their listed countries may be bullshit
+    6. Run IQS directory
+    7. Run Thomasnet
+
+
+Example:
+Timberland Boots
+	Timberland Boots parent company
+		Parent company is VF Corp
+	VF Corp publicly traded?
+		Yes, ticker is VFC on the NYSE
+	Run SEC Edgar 10-K and 10-Q for VFC
+		Return with 10-K stating that a majority of its suppliers are in Asia
+		VF uses third-party manufacturers for the majority of its products
+	Run ImportYeti for Timberland Boots
+		Top 5 suppliers are in Bangladesh, Vietnam, Bosnia (but a company named Bangladesh), the Dominican Republic, and Vietnam
+			They supply footwear and apparel, not raw materials
+	Check owners of VFC
+		Mostly institutional investors (PNC, Vanguard, Blackrock, etc)
+	
+Conclusion: Timberland Boots is an American company with major suppliers in Vietnam, Bangladesh, and the Dominican Republic. 

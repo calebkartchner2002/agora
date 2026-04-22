@@ -1,0 +1,13 @@
+Database Blocks
+
+Product
+	UUID/ company ref (UUID links back to company in databse)
+	Components/UUID ref to products (links back to component products in database)
+		Percentage makeup (if any)
+	Special product lines (if any)
+
+Company
+	UUID/parent company ref (links back to parent company in database)
+	Major Suppliers/ company refs or countries-of-origin
+	Score
+	Stored URLs/writeup/notes
