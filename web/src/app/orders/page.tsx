@@ -7,19 +7,14 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
 type Order = {
-  // Keep flexible because your backend shape may differ.
   id?: string;
   order_id?: string;
-
   status?: string;
   created_at?: string;
   updated_at?: string;
-
   total?: number;
   subtotal?: number;
   currency?: string;
-
-  // Some APIs include line items or retailer info:
   items?: Array<{
     title?: string;
     quantity?: number;
@@ -29,8 +24,8 @@ type Order = {
 };
 
 type OrdersResponse =
-  | { orders: Order[] } // common
-  | Order[];            // also common
+  | { orders: Order[] }
+  | Order[];
 
 function normalizeOrders(resp: OrdersResponse): Order[] {
   if (Array.isArray(resp)) return resp;
@@ -63,8 +58,6 @@ export default function OrdersPage() {
     setLoading(true);
     setError(null);
     try {
-      // If your backend filters by session via header, include it.
-      // If it doesn't need it, it will ignore it.
       const resp = await apiGet<OrdersResponse>("/orders", {
         headers: { "x-session-id": activeSessionId },
       });
@@ -88,15 +81,18 @@ export default function OrdersPage() {
       <div
         style={{
           display: "flex",
-          alignItems: "baseline",
+          alignItems: "center",
           justifyContent: "space-between",
           gap: 12,
+          marginBottom: 28,
         }}
       >
         <div>
-          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 900 }}>Orders</h2>
-          <div style={{ marginTop: 6, fontSize: 13, opacity: 0.8 }}>
-            History for your current guest session.
+          <h2 style={{ margin: "0 0 6px", fontSize: 26, fontWeight: 700, letterSpacing: "-0.02em" }}>
+            Orders
+          </h2>
+          <div style={{ fontSize: 13, color: "rgb(var(--muted))" }}>
+            Order history for your current session.
           </div>
         </div>
 
@@ -112,72 +108,93 @@ export default function OrdersPage() {
       {error && (
         <div
           style={{
-            marginTop: 14,
-            padding: "12px 14px",
-            borderRadius: 14,
-            border: "1px solid rgba(var(--danger), 0.35)",
-            background: "rgba(var(--danger), 0.12)",
-            color: "rgb(255 230 230)",
+            marginBottom: 20,
+            padding: "14px 16px",
+            borderRadius: 10,
+            border: "1px solid rgba(var(--danger), 0.4)",
+            background: "rgba(var(--danger), 0.08)",
+            color: "rgb(255, 200, 200)",
             fontSize: 13,
           }}
         >
-          <b>Issue:</b> {error}
+          {error}
         </div>
       )}
 
-      <div style={{ marginTop: 16 }}>
+      <div style={{ marginTop: 4 }}>
         {loading ? (
-          <Card style={{ padding: 16 }}>
-            <div style={{ opacity: 0.8 }}>Loading…</div>
+          <Card style={{ padding: 24 }}>
+            <div style={{ color: "rgb(var(--muted))" }}>Loading…</div>
           </Card>
         ) : orders.length === 0 ? (
-          <Card style={{ padding: 16 }}>
-            <div style={{ fontWeight: 900, marginBottom: 6 }}>No orders yet.</div>
-            <div style={{ opacity: 0.8, fontSize: 13 }}>
+          <Card style={{ padding: 32, textAlign: "center" }}>
+            <div style={{ fontSize: 32, marginBottom: 12 }}>📦</div>
+            <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 8 }}>No orders yet</div>
+            <div style={{ color: "rgb(var(--muted))", fontSize: 14 }}>
               Place an order from Checkout and it will appear here.
             </div>
           </Card>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {orders.map((o, idx) => {
               const oid = o.order_id ?? o.id ?? `order-${idx}`;
               const currency = o.currency ?? "USD";
 
               return (
-                <Card key={oid} style={{ padding: 16 }}>
+                <Card key={oid} style={{ padding: 24 }}>
                   <div
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      gap: 12,
-                      alignItems: "baseline",
+                      gap: 16,
+                      alignItems: "flex-start",
                       flexWrap: "wrap",
+                      marginBottom: o.items?.length ? 20 : 0,
                     }}
                   >
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontWeight: 900, fontSize: 14 }}>
-                        Order <code>{oid}</code>
+                      <div style={{ fontWeight: 600, fontSize: 15 }}>
+                        Order{" "}
+                        <code style={{ fontFamily: "var(--font-geist-mono)", fontSize: 13 }}>{oid}</code>
                       </div>
-                      <div style={{ marginTop: 6, fontSize: 13, opacity: 0.82 }}>
-                        <b>Status:</b> {o.status ?? "—"}
-                        {"  •  "}
-                        <b>Created:</b> {prettyDate(o.created_at)}
+                      <div style={{ marginTop: 8, fontSize: 13, color: "rgb(var(--muted))", display: "flex", gap: 16, flexWrap: "wrap" }}>
+                        <span>
+                          Status:{" "}
+                          <span
+                            style={{
+                              color: o.status === "completed" ? "rgb(var(--accent))" : "rgb(var(--text))",
+                              fontWeight: 500,
+                            }}
+                          >
+                            {o.status ?? "—"}
+                          </span>
+                        </span>
+                        <span>Created: {prettyDate(o.created_at)}</span>
                       </div>
                     </div>
 
-                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontWeight: 900 }}>
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <div style={{ fontWeight: 700, fontSize: 18 }}>
                         {o.total != null ? money(o.total, currency) : money(o.subtotal, currency)}
                       </div>
-                      <div style={{ marginTop: 6, fontSize: 12, opacity: 0.75 }}>
+                      <div style={{ marginTop: 4, fontSize: 12, color: "rgb(var(--muted))" }}>
                         {o.total != null ? "Total" : "Subtotal"}
                       </div>
                     </div>
                   </div>
 
                   {o.items?.length ? (
-                    <div style={{ marginTop: 12 }}>
-                      <div style={{ fontSize: 12, opacity: 0.8, marginBottom: 8 }}>
+                    <div>
+                      <div
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 600,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.06em",
+                          color: "rgb(var(--muted))",
+                          marginBottom: 12,
+                        }}
+                      >
                         Items
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -187,23 +204,21 @@ export default function OrdersPage() {
                             style={{
                               display: "flex",
                               justifyContent: "space-between",
-                              gap: 12,
-                              padding: "10px 12px",
-                              borderRadius: 14,
-                              border: "1px solid rgba(var(--border), 0.20)",
-                              background: "rgba(var(--panel), 0.06)",
+                              gap: 16,
+                              padding: "12px 14px",
+                              borderRadius: 10,
+                              border: "1px solid rgba(var(--border), 0.45)",
+                              background: "rgba(var(--border), 0.06)",
                               fontSize: 13,
                             }}
                           >
                             <div style={{ minWidth: 0 }}>
-                              <div style={{ fontWeight: 800 }}>
-                                {it.title ?? "Item"}
-                              </div>
-                              <div style={{ marginTop: 4, opacity: 0.8 }}>
+                              <div style={{ fontWeight: 500 }}>{it.title ?? "Item"}</div>
+                              <div style={{ marginTop: 4, color: "rgb(var(--muted))" }}>
                                 Qty {it.quantity ?? "—"}
                               </div>
                             </div>
-                            <div style={{ fontWeight: 800, whiteSpace: "nowrap" }}>
+                            <div style={{ fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0 }}>
                               {it.line_total != null
                                 ? money(it.line_total, currency)
                                 : it.unit_price != null
@@ -213,15 +228,15 @@ export default function OrdersPage() {
                           </div>
                         ))}
                         {o.items.length > 5 && (
-                          <div style={{ fontSize: 12, opacity: 0.75 }}>
-                            + {o.items.length - 5} more…
+                          <div style={{ fontSize: 12, color: "rgb(var(--muted))", paddingLeft: 2 }}>
+                            +{o.items.length - 5} more items
                           </div>
                         )}
                       </div>
                     </div>
                   ) : (
-                    <div style={{ marginTop: 10, fontSize: 12, opacity: 0.7 }}>
-                      No item details returned by API for this order.
+                    <div style={{ fontSize: 13, color: "rgb(var(--muted))" }}>
+                      No item details available for this order.
                     </div>
                   )}
                 </Card>

@@ -1,19 +1,21 @@
 :root {
   /* Base */
-  --bg: 57 79 73;              /* dark-slate-grey */
-  --panel: 215 249 241;        /* frozen-water */
-  --panel-alpha: 0.10;
-  --border: 188 216 193;       /* celadon */
-  --border-alpha: 0.35;
+  --bg: 9 11 18;               /* deep navy-black */
+  --panel: 22 28 45;           /* dark navy */
+  --panel-alt: 28 35 56;       /* slightly lighter panel */
+  --panel-alpha: 0.85;
+  --border: 58 71 110;         /* subtle indigo border */
+  --border-alpha: 0.55;
 
   /* Text */
-  --text: 215 249 241;         /* frozen-water */
-  --muted: 188 216 193;        /* celadon */
+  --text: 226 232 240;         /* near-white */
+  --muted: 100 116 139;        /* slate-400 */
 
   /* Brand */
-  --primary: 101 13 27;        /* night-bordeaux */
-  --accent: 101 116 58;        /* fern */
-  --danger: 180 60 60;
+  --primary: 99 102 241;       /* indigo-500 */
+  --primary-light: 129 140 248; /* indigo-400 */
+  --accent: 16 185 129;        /* emerald-500 */
+  --danger: 239 68 68;         /* red-500 */
 }
 
 

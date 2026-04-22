@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { apiGet, apiPost, Product } from "@/lib/api";
 import { getGuestSessionId } from "@/lib/session";
-import { Header } from "@/components/Header";
 import { SearchBar } from "@/components/SearchBar";
 import { ProductGrid } from "@/components/ProductGrid";
 import { Card } from "@/components/ui/Card";
@@ -23,6 +22,7 @@ type CartResponse = {
 
 
 export default function HomePage() {
+  const HERO_MAX_WIDTH = 720;
   const [q, setQ] = useState("");
   const [limit, setLimit] = useState(12);
   const [results, setResults] = useState<Product[]>([]);
@@ -33,9 +33,6 @@ export default function HomePage() {
   const [cartCount, setCartCount] = useState(0);
 
 
-  // useEffect(() => {
-  //   setSessionId(getGuestSessionId());
-  // }, []);
   useEffect(() => {
     const sid = getGuestSessionId();
     setSessionId(sid);
@@ -85,7 +82,6 @@ export default function HomePage() {
         },
         { headers: { "x-session-id": sessionId } }
       );
-      // We’ll replace alert with a Toast component later
       await refreshCartCount(sessionId);
       alert("Added to cart");
     } catch (e: any) {
@@ -101,7 +97,6 @@ export default function HomePage() {
       const count = (cart.items ?? []).reduce((sum, it) => sum + (it.quantity ?? 0), 0);
       setCartCount(count);
     } catch {
-      // If cart isn't created yet or endpoint errors, just show 0
       setCartCount(0);
     }
   }
@@ -115,96 +110,73 @@ export default function HomePage() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      {/* HERO / TOP SEARCH AREA */}
+    <div>
+      {/* Hero / Search */}
       <div
         style={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          transition: "all 300ms ease",
-          paddingTop: hasSearched ? 18 : "18vh",
-          paddingBottom: hasSearched ? 12 : 18,
+          paddingTop: hasSearched ? 16 : "12vh",
+          paddingBottom: hasSearched ? 24 : 40,
+          transition: "padding 300ms ease",
+          maxWidth: hasSearched ? "100%" : HERO_MAX_WIDTH,
+          margin: "0 auto",
         }}
       >
-        <div
-          style={{
-            width: "100%",
-            maxWidth: hasSearched ? 920 : 980,
-            padding: hasSearched ? "12px 18px" : "24px 24px",
-            transform: hasSearched ? "scale(1)" : "scale(1.12)",
-            transformOrigin: "top center",
-            transition: "all 300ms ease",
-          }}
-        >
-          <SearchBar
-            q={q}
-            setQ={setQ}
-            limit={limit}
-            setLimit={setLimit}
-            loading={loading}
-            onSearch={runSearch}
-            onClear={clear}
-            error={error}
-          />
-
-          {/* Bigger helper text before searching, smaller after */}
-          <div
-            style={{
-              marginTop: hasSearched ? 10 : 16,
-              padding: hasSearched ? "10px 12px" : "18px 18px",
-              borderRadius: 18,
-              background: "rgba(var(--panel), 0.06)",
-              color: "rgb(var(--muted))",
-              transition: "all 300ms ease",
-            }}
-          >
-            <div
+        {!hasSearched && (
+          <div style={{ marginBottom: 28, textAlign: "center" }}>
+            <h1
               style={{
-                fontSize: hasSearched ? 14 : 18,
-                fontWeight: 850,
-                marginBottom: hasSearched ? 4 : 8,
-                transition: "all 300ms ease",
+                fontSize: 36,
+                fontWeight: 700,
+                letterSpacing: "-0.03em",
+                margin: "0 0 10px",
+                color: "rgb(var(--text))",
+                lineHeight: 1.2,
               }}
             >
-              Ready when you are.
-            </div>
-            <div
-              style={{
-                fontSize: hasSearched ? 13 : 15,
-                opacity: 0.85,
-                lineHeight: 1.45,
-                transition: "all 300ms ease",
-              }}
-            >
-              Enter a query above and use the search icon to explore products.
-            </div>
+              Find anything.
+            </h1>
+            <p style={{ fontSize: 16, color: "rgb(var(--muted))", margin: 0, lineHeight: 1.5 }}>
+              Search millions of products across the web.
+            </p>
           </div>
-        </div>
+        )}
+
+        <SearchBar
+          q={q}
+          setQ={setQ}
+          limit={limit}
+          setLimit={setLimit}
+          loading={loading}
+          onSearch={runSearch}
+          onClear={clear}
+          error={error}
+        />
       </div>
 
-      {/* RESULTS AREA */}
-      <div style={{ width: "100%", maxWidth: 1200, padding: "0 24px 32px" }}>
-        {hasSearched && results.length === 0 && !loading ? (
-          <Card style={{ padding: 18, opacity: 0.92 }}>
-            <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>
-              No results.
+      {/* Results */}
+      {hasSearched && (
+        <div>
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "48px 0", color: "rgb(var(--muted))", fontSize: 15 }}>
+              Searching…
             </div>
-            <div style={{ fontSize: 13, opacity: 0.75 }}>
-              Try a broader query or increase the limit.
-            </div>
-          </Card>
-        ) : hasSearched ? (
-          <ProductGrid products={results} onAdd={addToCart} addDisabled={!sessionId} />
-        ) : null}
-      </div>
+          ) : results.length === 0 ? (
+            <Card style={{ padding: "28px 24px" }}>
+              <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 6 }}>No results found.</div>
+              <div style={{ fontSize: 14, color: "rgb(var(--muted))" }}>
+                Try a broader query or increase the limit.
+              </div>
+            </Card>
+          ) : (
+            <>
+              <div style={{ marginBottom: 18, fontSize: 13, color: "rgb(var(--muted))" }}>
+                {results.length} result{results.length !== 1 ? "s" : ""}
+              </div>
+              <ProductGrid products={results} onAdd={addToCart} addDisabled={!sessionId} />
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

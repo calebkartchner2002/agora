@@ -10,27 +10,25 @@ export function Input({ style, ...props }: Props) {
       {...props}
       style={{
         width: "100%",
-        padding: "16px 16px",        // slightly smaller than before
-        fontSize: 16,
-        borderRadius: 16,
-        border: "1px solid rgba(var(--border), 0.45)",
-        background:
-            "linear-gradient(180deg, rgba(var(--panel), 0.18), rgba(var(--panel), 0.10))",
+        padding: "14px 16px",
+        fontSize: 15,
+        borderRadius: 10,
+        border: "1px solid rgba(var(--border), 0.6)",
+        background: "rgba(var(--panel-alt, 28 35 56), 0.95)",
         color: "rgb(var(--text))",
         outline: "none",
-        boxShadow:
-            "inset 0 1px 0 rgba(255,255,255,0.08)",
-        lineHeight: 1.35,
+        transition: "border-color 150ms ease, box-shadow 150ms ease",
+        lineHeight: 1.4,
         ...style,
       }}
 
       onFocus={(e) => {
-        e.currentTarget.style.border = "1px solid rgba(var(--primary), 0.55)";
-        e.currentTarget.style.boxShadow = "0 0 0 4px rgba(99,102,241,0.18)";
+        e.currentTarget.style.borderColor = "rgba(var(--primary), 0.8)";
+        e.currentTarget.style.boxShadow = "0 0 0 3px rgba(var(--primary), 0.15)";
         props.onFocus?.(e);
       }}
       onBlur={(e) => {
-        e.currentTarget.style.border = "1px solid rgba(var(--border), 0.12)";
+        e.currentTarget.style.borderColor = "rgba(var(--border), 0.6)";
         e.currentTarget.style.boxShadow = "none";
         props.onBlur?.(e);
       }}

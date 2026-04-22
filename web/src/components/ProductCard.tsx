@@ -1,8 +1,8 @@
 "use client";
 
 import { Product } from "@/lib/api";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { useState } from "react";
 
 export function ProductCard({
   product,
@@ -14,15 +14,30 @@ export function ProductCard({
   disabled?: boolean;
 }) {
   const p = product;
+  const [hovered, setHovered] = useState(false);
 
   return (
-    <Card padded={true} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 0,
+        border: `1px solid rgba(var(--border), ${hovered ? "0.9" : "0.55"})`,
+        background: hovered ? "rgb(var(--panel-alt))" : "rgb(var(--panel))",
+        borderRadius: 14,
+        overflow: "hidden",
+        transition: "transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease, background 200ms ease",
+        transform: hovered ? "translateY(-4px)" : "translateY(0)",
+        boxShadow: hovered ? "0 16px 40px rgba(0,0,0,0.5)" : "0 2px 12px rgba(0,0,0,0.3)",
+      }}
+    >
+      {/* Image */}
       <div
         style={{
-          borderRadius: 14,
-          border: "1px solid rgba(var(--border), 0.08)",
-          background: "rgba(0,0,0,0.25)",
-          height: 170,
+          background: "rgba(0,0,0,0.3)",
+          height: 200,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -34,40 +49,54 @@ export function ProductCard({
           <img
             src={p.image_url}
             alt={p.title}
-            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+              transition: "transform 300ms ease",
+              transform: hovered ? "scale(1.04)" : "scale(1)",
+            }}
           />
         ) : (
-          <div style={{ opacity: 0.6, fontSize: 12 }}>No image</div>
+          <div style={{ opacity: 0.4, fontSize: 13, color: "rgb(var(--muted))" }}>No image</div>
         )}
       </div>
 
-      <div style={{ fontWeight: 800, fontSize: 14, lineHeight: 1.25 }}>{p.title}</div>
-      <div style={{ fontSize: 12, opacity: 0.75 }}>{p.brand ?? ""}</div>
-
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ fontWeight: 800 }}>
-          {p.price != null ? `${p.price} ${p.currency ?? "USD"}` : "—"}
+      {/* Content */}
+      <div style={{ padding: "16px 18px 18px", display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
+        <div>
+          <div style={{ fontWeight: 600, fontSize: 14, lineHeight: 1.4, color: "rgb(var(--text))" }}>
+            {p.title}
+          </div>
+          {p.brand && (
+            <div style={{ fontSize: 12, color: "rgb(var(--muted))", marginTop: 4 }}>{p.brand}</div>
+          )}
         </div>
 
-        <Button onClick={() => onAdd(p)} disabled={!!disabled} size="sm">
-          Add
-        </Button>
-      </div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto" }}>
+          <div style={{ fontWeight: 700, fontSize: 15, color: "rgb(var(--text))" }}>
+            {p.price != null ? `${p.price} ${p.currency ?? "USD"}` : "—"}
+          </div>
+          <Button onClick={() => onAdd(p)} disabled={!!disabled} size="sm">
+            Add to cart
+          </Button>
+        </div>
 
-      <a
-        href={p.product_url}
-        target="_blank"
-        rel="noreferrer"
-        style={{
-          fontSize: 12,
-          opacity: 0.75,
-          borderTop: "1px solid rgba(var(--border), 0.08)",
-          paddingTop: 10,
-          marginTop: 4,
-        }}
-      >
-        View product →
-      </a>
-    </Card>
+        <a
+          href={p.product_url}
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            fontSize: 12,
+            color: "rgb(var(--primary-light, 129 140 248))",
+            borderTop: "1px solid rgba(var(--border), 0.35)",
+            paddingTop: 12,
+            display: "inline-block",
+          }}
+        >
+          View product →
+        </a>
+      </div>
+    </div>
   );
 }
